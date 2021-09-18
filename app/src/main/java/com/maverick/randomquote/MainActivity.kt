@@ -1,5 +1,7 @@
 package com.maverick.randomquote
 
+
+
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -8,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.maverick.randomquote.api.QuoteService
 import com.maverick.randomquote.api.RetrofitHelper
 import com.maverick.randomquote.repository.QuoteRepository
+import com.maverick.randomquote.repository.Response
 import com.maverick.randomquote.viewmodels.MainViewModel
 import com.maverick.randomquote.viewmodels.MainViewModelFactory
 
@@ -25,7 +28,18 @@ class MainActivity : AppCompatActivity() {
             ViewModelProvider(this, MainViewModelFactory(repository)).get(MainViewModel::class.java)
 
         mainViewModel.quotes.observe(this, {
-            Toast.makeText(this@MainActivity, it.results.size.toString(), Toast.LENGTH_SHORT).show()
+            when (it) {
+                is Response.Loading ->{}
+                is Response.Success ->{
+                    it.data?.let {
+                        Toast.makeText(this@MainActivity,it.results.size.toString(),Toast.LENGTH_SHORT).show()
+                    }
+                }
+                is Response.Error ->{
+                    it.errorMsg
+                    Toast.makeText(this@MainActivity, "Some Error Occurred", Toast.LENGTH_SHORT).show()
+                }
+            }
         })
     }
 }
